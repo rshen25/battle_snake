@@ -8,10 +8,16 @@ public class GameManager : MonoBehaviour
     public float levelStartDelay = 4f;
     public static GameManager instance = null;
 
-    private int playerScore = 0;                // The player score
-
     public bool doingSetup = true;              // Boolean to check if the game is setting up the level in order to prevent the user from moving the snake
 
+    public float turnTime = 0.35f;
+    public int stage = 0;
+    public float turnTimeIncrement = 0.75f;
+
+    private GameObject playerSnake;
+    private GameObject aiSnake;
+
+    private int playerScore = 0;                // The player score
 
     private Text playerScoreTxt;                // The player scores text
     private Text loseTxt;                       // The text to show the lose message at the center of the screen
@@ -91,5 +97,16 @@ public class GameManager : MonoBehaviour
     public int GetPlayerScore()
     {
         return playerScore;
+    }
+
+    public void IncreaseMovementSpeed()
+    {
+        if (stage >= 6)
+        {
+            return;
+        }
+
+        stage++;
+        turnTime = turnTime * turnTimeIncrement;
     }
 }

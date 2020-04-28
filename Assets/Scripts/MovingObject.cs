@@ -9,10 +9,10 @@ public class MovingObject : MonoBehaviour
     public int yDir = 0;
 
     public float moveTime = 0.1f;
-    public LayerMask blockingLayer;         // Layer where we check for collisions
+    public LayerMask blockingLayer;             // Layer where we check for collisions
 
     protected BoxCollider2D boxCollider;        // The object's collision box
-    protected new Rigidbody2D rigidbody;            // The object's rigid body, used for collision
+    protected new Rigidbody2D rigidbody;        // The object's rigid body, used for collision
 
     protected bool isMoving = false;
 
@@ -26,7 +26,6 @@ public class MovingObject : MonoBehaviour
 
         inverseMoveTime = 1f / moveTime;
     }
-
 
 
     // Moves the object towards the direction provided and outputs true/false if successful and a raycast of any collisions

@@ -13,9 +13,6 @@ public class SnakeHead : MovingObject
     protected int yDirBuffer = 0;
 
     protected bool hasEaten = false;
-    protected float turnTime = 0.35f;
-    protected int stage = 0;
-    protected float turnTimeIncrement = 0.75f;
 
     // Start is called before the first frame update
     protected override void Start()
@@ -24,7 +21,7 @@ public class SnakeHead : MovingObject
         bodies = new Stack<GameObject>();
         base.Start();
 
-        InvokeRepeating("MoveSnake", 1f, turnTime);
+        InvokeRepeating("MoveSnake", 1f, GameManager.instance.turnTime);
     }
 
     // Update is called once per frame
@@ -125,15 +122,9 @@ public class SnakeHead : MovingObject
 
     private void IncreaseMovementSpeed()
     {
-        if (stage >= 6)
-        {
-            return;
-        }
-
-        stage++;
-        turnTime = turnTime * turnTimeIncrement;
+        GameManager.instance.IncreaseMovementSpeed();
         CancelInvoke("MoveSnake");
-        InvokeRepeating("MoveSnake", turnTime, turnTime);
+        InvokeRepeating("MoveSnake", GameManager.instance.turnTime, GameManager.instance.turnTime);
     }
 
     private void UpdateDirection()
