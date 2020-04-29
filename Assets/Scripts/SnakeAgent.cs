@@ -6,7 +6,7 @@ using MLAgents;
 
 public class SnakeAgent : Agent
 {
-    public int xDir = 0;
+    public int xDir = -1;
     public int yDir = 0;
 
     public float moveTime = 0.1f;
@@ -21,9 +21,13 @@ public class SnakeAgent : Agent
 
     protected bool isMoving = false;
 
+    private int score = 0;
+
     private float inverseMoveTime;
 
     private Stack<GameObject> bodies;
+
+    private Vector3 startingPos;
 
     // Actions
     const int k_NoAction = 0;  // do nothing!
@@ -32,9 +36,12 @@ public class SnakeAgent : Agent
     const int k_Up = 3;
     const int k_Down = 4;
 
-    // TODO: Initial setup of the snake agent, called when the agent is enabled
+    // Initial setup of the snake agent, called when the agent is enabled
     public override void InitializeAgent()
     {
+        base.InitializeAgent();
+
+        startingPos = new Vector3(11, 11, 0);
 
         boxCollider = GetComponent<BoxCollider2D>();
         rigidbody = GetComponent<Rigidbody2D>();
@@ -42,10 +49,11 @@ public class SnakeAgent : Agent
         inverseMoveTime = 1f / moveTime;
 
         bodies = new Stack<GameObject>();
+    }
 
+    protected void Start()
+    {
         InvokeRepeating("MoveSnake", 1f, GameManager.instance.turnTime);
-
-        base.InitializeAgent();
     }
 
     // TODO: Performs actions based on a vector of numbers
@@ -68,26 +76,56 @@ public class SnakeAgent : Agent
             case k_Right:
                 xDir = 1;
                 break;
+
             case k_Up:
-                xDir = 1;
-                break;
-            case k_Down:
-                xDir = 1;
+                yDir = 1;
                 break;
 
+            case k_Down:
+                yDir = -1;
+                break;
             default:
                 throw new ArgumentException("Invalid action value");
         }
 
         // Add a reward for staying alive
         AddReward(0.01f);
+    }
 
+    public override float[] Heuristic()
+    {
+        if (Input.GetKey(KeyCode.D))
+        {
+            return new float[] { k_Right };
+        }
+        if (Input.GetKey(KeyCode.W))
+        {
+            return new float[] { k_Up };
+        }
+        if (Input.GetKey(KeyCode.A))
+        {
+            return new float[] { k_Left };
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            return new float[] { k_Down };
+        }
+        return new float[] { k_NoAction };
     }
 
     // TODO: collect all non-raycast observations
     public override void CollectObservations()
     {
-        base.CollectObservations();
+        AddVectorObs(score);
+    }
+
+    // Resets the AI snake to its default starting position and status
+    public override void AgentReset()
+    {
+        bodies.Clear();
+        transform.position = startingPos;
+        xDir = -1;
+        yDir = 0;
     }
 
     // Moves the object towards the direction provided and outputs true/false if successful and a raycast of any collisions
@@ -108,6 +146,9 @@ public class SnakeAgent : Agent
 
         // TODO: REMOVE
         Debug.Log("Something collided");
+
+        AddReward(-1000f);
+        Done();
 
         return false;
     }
@@ -188,7 +229,7 @@ public class SnakeAgent : Agent
         {
             // Eat the food, increase points
             // Update the game manager score
-            GameManager.instance.IncrementPlayerScore();
+            GameManager.instance.IncrementAIScore();
 
             if (GameManager.instance.GetPlayerScore() % 100 == 0)
             {
@@ -198,6 +239,8 @@ public class SnakeAgent : Agent
             hasEaten = true;
 
             Destroy(other.gameObject);
+
+            AddReward(1f);
 
             // Spawn another food
             GameManager.instance.RespawnFood();
@@ -215,7 +258,7 @@ public class SnakeAgent : Agent
         bodies.Push(body);
     }
 
-    private void IncreaseMovementSpeed()
+    public void IncreaseMovementSpeed()
     {
         GameManager.instance.IncreaseMovementSpeed();
         CancelInvoke("MoveSnake");

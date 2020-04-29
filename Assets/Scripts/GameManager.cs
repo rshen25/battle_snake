@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
     private GameObject aiSnake;
 
     private int playerScore = 0;                // The player score
+    private int aiScore = 0;                    // The AI's score
 
     private Text playerScoreTxt;                // The player scores text
     private Text loseTxt;                       // The text to show the lose message at the center of the screen
@@ -73,6 +74,14 @@ public class GameManager : MonoBehaviour
 
         playerScoreTxt.text = "Score: " + playerScore;
 
+    }
+
+    // Increments the AI score
+    public void IncrementAIScore()
+    {
+        aiScore += 50;
+
+        // TODO: Add UI to show AI score
     }
 
     // Calls the board script to respawn another food tile onto the board
