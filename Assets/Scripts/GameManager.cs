@@ -108,6 +108,13 @@ public class GameManager : MonoBehaviour
         return playerScore;
     }
 
+    // Gets and returns the position of the current food tile on the game board
+    public Vector3 GetCurrentFoodPos()
+    {
+        return boardScript.GetCurrentFoodPos();
+    }
+
+    // Increases the movespeed of all
     public void IncreaseMovementSpeed()
     {
         if (stage >= 6)

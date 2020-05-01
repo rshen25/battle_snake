@@ -188,6 +188,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: SnakeHead2
       objectReference: {fileID: 0}
+    - target: {fileID: 4806088446146280126, guid: b8259e37d8273d949b08fc4001989568,
+        type: 3}
+      propertyPath: m_BrainParameters.vectorObservationSize
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4806088446146280126, guid: b8259e37d8273d949b08fc4001989568,
+        type: 3}
+      propertyPath: m_BehaviorType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4806088446146280126, guid: b8259e37d8273d949b08fc4001989568,
+        type: 3}
+      propertyPath: m_BehaviorName
+      value: BattleSnake
+      objectReference: {fileID: 0}
+    - target: {fileID: 6743052370069877549, guid: b8259e37d8273d949b08fc4001989568,
+        type: 3}
+      propertyPath: maxStep
+      value: 10000
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b8259e37d8273d949b08fc4001989568, type: 3}
 --- !u!1 &1266012931

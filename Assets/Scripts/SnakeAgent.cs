@@ -9,6 +9,9 @@ public class SnakeAgent : Agent
     public int xDir = -1;
     public int yDir = 0;
 
+    public int x;
+    public int y;
+
     public float moveTime = 0.1f;
     public LayerMask blockingLayer;             // Layer where we check for collisions
 
@@ -28,6 +31,8 @@ public class SnakeAgent : Agent
     private Stack<GameObject> bodies;
 
     private Vector3 startingPos;
+
+    private readonly float initialMoveSpeed = 0.35f;
 
     // Actions
     const int k_NoAction = 0;  // do nothing!
@@ -49,20 +54,18 @@ public class SnakeAgent : Agent
         inverseMoveTime = 1f / moveTime;
 
         bodies = new Stack<GameObject>();
+
+        InvokeRepeating("MoveSnake", 1f, initialMoveSpeed);
     }
 
-    protected void Start()
-    {
-        InvokeRepeating("MoveSnake", 1f, GameManager.instance.turnTime);
-    }
 
     // TODO: Performs actions based on a vector of numbers
     // @param vectorAction - the list of actions for the agent to perform
     public override void AgentAction(float[] vectorAction)
     {
-        base.AgentAction(vectorAction);
+        int action = Mathf.FloorToInt(vectorAction[0]);
 
-        var action = Mathf.FloorToInt(vectorAction[0]);
+        Debug.Log("Action : " + action);
 
         switch(action)
         {
@@ -87,35 +90,45 @@ public class SnakeAgent : Agent
             default:
                 throw new ArgumentException("Invalid action value");
         }
-
-        // Add a reward for staying alive
-        AddReward(0.01f);
     }
 
     public override float[] Heuristic()
     {
         if (Input.GetKey(KeyCode.D))
         {
+            x = 1;
             return new float[] { k_Right };
         }
         if (Input.GetKey(KeyCode.W))
         {
+            y = 1;
             return new float[] { k_Up };
         }
         if (Input.GetKey(KeyCode.A))
         {
+            x = -1;
             return new float[] { k_Left };
         }
         if (Input.GetKey(KeyCode.S))
         {
+            y = -1;
             return new float[] { k_Down };
         }
         return new float[] { k_NoAction };
     }
 
-    // TODO: collect all non-raycast observations
+    // Collect all non-raycast observations
     public override void CollectObservations()
-    {
+    { 
+        Vector3 foodPos = GameManager.instance.GetCurrentFoodPos();
+
+        // The distance from the food in the X plane
+        AddVectorObs(transform.position.x - foodPos.x);
+
+        // The distance from the food in the Y plane
+        AddVectorObs(transform.position.y - foodPos.y);
+
+        // The current score of the AI
         AddVectorObs(score);
     }
 
@@ -126,6 +139,18 @@ public class SnakeAgent : Agent
         transform.position = startingPos;
         xDir = -1;
         yDir = 0;
+    }
+
+    private void FixedUpdate()
+    {
+        if (GetStepCount() % 5 == 0)
+        {
+            RequestDecision();
+        }
+        else
+        {
+            RequestAction();
+        }
     }
 
     // Moves the object towards the direction provided and outputs true/false if successful and a raycast of any collisions
@@ -159,6 +184,14 @@ public class SnakeAgent : Agent
     {
         isMoving = true;
         float sqrRemainingDistance = (transform.position - end).sqrMagnitude;
+
+        Vector3 foodPos = GameManager.instance.GetCurrentFoodPos();
+
+        // Add reward for moving closer to food and remove reward for moving away
+        float xDisToFood = Math.Abs(transform.position.x - foodPos.x);
+        float yDisToFood = Math.Abs(transform.position.y - foodPos.y);
+
+        AddReward(0.01f - 0.001f * (xDisToFood + yDisToFood));
 
         while (sqrRemainingDistance > float.Epsilon)
         {

@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    vectorObservationSize: 1
+    vectorObservationSize: 3
     numStackedVectorObservations: 1
     vectorActionSize: 05000000
     vectorActionDescriptions: []
@@ -124,7 +124,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  maxStep: 100
+  maxStep: 10000
   xDir: -1
   yDir: 0
   moveTime: 0.1

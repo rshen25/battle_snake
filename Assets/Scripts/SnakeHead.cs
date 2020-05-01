@@ -14,7 +14,7 @@ public class SnakeHead : MovingObject
 
     protected bool hasEaten = false;
 
-    // Start is called before the first frame update
+    // Start is called before the first frame updates
     protected override void Start()
     {
         //body = bodyPrefab.GetComponent<SnakeBody>();

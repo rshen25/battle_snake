@@ -14,6 +14,7 @@ public class BoardManager : MonoBehaviour
     public GameObject[] wallTiles;
     public GameObject foodTile;
 
+    private GameObject currentFoodTile;
     private Transform boardHolder;
 
     // Stores the possible positions on the game board
@@ -64,17 +65,6 @@ public class BoardManager : MonoBehaviour
         return gridPositions[randomIndex];
     }
 
-    // Places a food object onto a random position within the game board
-    public void PlaceFood()
-    {
-        Vector3 foodPosition = ChooseRandomPosition();
-
-        // Check if position is not blocked
-            // if blocked, choose another random position
-
-        Instantiate(foodTile, foodPosition, Quaternion.identity);
-    }
-
     public void RespawnFood()
     {
         // Get a random position on the board
@@ -89,7 +79,7 @@ public class BoardManager : MonoBehaviour
             tries--;
         }
 
-        Instantiate(foodTile, foodPosition, Quaternion.identity);
+        currentFoodTile = Instantiate(foodTile, foodPosition, Quaternion.identity);
     }
 
     // Sets up the level
@@ -99,7 +89,13 @@ public class BoardManager : MonoBehaviour
         BoardSetup();
 
         // Place food at the center of the game board
-        Instantiate(foodTile, new Vector3((int)(columns / 2), (int)(rows / 2), 0f), Quaternion.identity);
+        currentFoodTile = Instantiate(foodTile, new Vector3((int)(columns / 2), (int)(rows / 2), 0f), Quaternion.identity);
+    }
+
+    // Returns the position of the current food
+    public Vector3 GetCurrentFoodPos()
+    {
+        return currentFoodTile.transform.position;
     }
 
     // Checks if a space is free to spawn a food tile
@@ -114,4 +110,5 @@ public class BoardManager : MonoBehaviour
 
         return results == null;
     }
+
 }

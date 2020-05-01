@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4945558074061177469}
   - component: {fileID: 7988112513427099555}
-  - component: {fileID: -8670490631164033605}
   - component: {fileID: -9109843442631113112}
   - component: {fileID: -2835626588911558611}
+  - component: {fileID: 8752389146736339209}
   m_Layer: 8
   m_Name: SnakeHead
   m_TagString: Snake Head
@@ -84,26 +84,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &-8670490631164033605
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2835773570891111775}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a3305dd9ee09c14899f0480ce101d93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  xDir: 1
-  yDir: 0
-  moveTime: 0.1
-  blockingLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  bodyPrefab: {fileID: 4746668691867243671, guid: e4c282165da606247bacf5ef4ffca107,
-    type: 3}
 --- !u!50 &-9109843442631113112
 Rigidbody2D:
   serializedVersion: 4
@@ -151,3 +131,23 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.9, y: 0.9}
   m_EdgeRadius: 0
+--- !u!114 &8752389146736339209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2835773570891111775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cb6f8fadaf2375419c083223ecd1808, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  xDir: 1
+  yDir: 0
+  moveTime: 0.1
+  blockingLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  bodyPrefab: {fileID: 4746668691867243671, guid: e4c282165da606247bacf5ef4ffca107,
+    type: 3}
