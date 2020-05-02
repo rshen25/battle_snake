@@ -14,13 +14,14 @@ public class GameManager : MonoBehaviour
     public int stage = 0;
     public float turnTimeIncrement = 0.75f;
 
-    private GameObject playerSnake;
-    private GameObject aiSnake;
+    // private PlayerSnake playerSnake;
+    private SnakeAgent aiSnake;
 
     private int playerScore = 0;                // The player score
     private int aiScore = 0;                    // The AI's score
 
     private Text playerScoreTxt;                // The player scores text
+    private Text aiScoreTxt;                    // The AI scores text
     private Text loseTxt;                       // The text to show the lose message at the center of the screen
     private Text winTxt;                        // The text to show the win message 
     private BoardManager boardScript;
@@ -41,7 +42,13 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         boardScript = GetComponent<BoardManager>();
 
+        // Get the Player and AI snake
+        // playerSnake = GameObject.Find("SnakeHead").GetComponent<PlayerSnake>();
+        aiSnake = GameObject.Find("SnakeHead2").GetComponent<SnakeAgent>();
+
+        // Get the UI elements
         playerScoreTxt = GameObject.Find("PlayerScore").GetComponent<Text>();
+        aiScoreTxt = GameObject.Find("AIScore").GetComponent<Text>();
         loseTxt = GameObject.Find("LoseText").GetComponent<Text>();
         winTxt = GameObject.Find("WinText").GetComponent<Text>();
 
@@ -71,17 +78,24 @@ public class GameManager : MonoBehaviour
     public void IncrementPlayerScore()
     {
         playerScore += 50;
+        playerScoreTxt.text = playerScore.ToString();
 
-        playerScoreTxt.text = "Score: " + playerScore;
-
+        if ((playerScore + aiScore) % 100 == 0)
+        {
+            IncreaseMovementSpeed();
+        }
     }
 
     // Increments the AI score
     public void IncrementAIScore()
     {
         aiScore += 50;
+        aiScoreTxt.text = aiScore.ToString();
 
-        // TODO: Add UI to show AI score
+        if ((playerScore + aiScore) % 100 == 0)
+        {
+            IncreaseMovementSpeed();
+        }
     }
 
     // Calls the board script to respawn another food tile onto the board
@@ -121,8 +135,20 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
-
+        
         stage++;
         turnTime = turnTime * turnTimeIncrement;
+
+        // playerSnake.IncreaseMovementSpeed();
+        aiSnake.IncreaseMovementSpeed();
+    }
+
+    // Resets the scores
+    public void ResetScores()
+    {
+        playerScore = 0;
+        aiScore = 0;
+        stage = 0;
+        turnTime = 0.35f;
     }
 }

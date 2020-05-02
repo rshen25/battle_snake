@@ -9,9 +9,6 @@ public class SnakeAgent : Agent
     public int xDir = -1;
     public int yDir = 0;
 
-    public int x;
-    public int y;
-
     public float moveTime = 0.1f;
     public LayerMask blockingLayer;             // Layer where we check for collisions
 
@@ -46,26 +43,28 @@ public class SnakeAgent : Agent
     {
         base.InitializeAgent();
 
-        startingPos = new Vector3(11, 11, 0);
-
-        boxCollider = GetComponent<BoxCollider2D>();
-        rigidbody = GetComponent<Rigidbody2D>();
-
-        inverseMoveTime = 1f / moveTime;
-
         bodies = new Stack<GameObject>();
 
         InvokeRepeating("MoveSnake", 1f, initialMoveSpeed);
     }
 
+    private void Start()
+    {
+        startingPos = new Vector3(10, 11, 0);   // TODO: remove hard coded numbers
 
-    // TODO: Performs actions based on a vector of numbers
+        inverseMoveTime = 1f / moveTime;
+
+        boxCollider = GetComponent<BoxCollider2D>();
+        rigidbody = GetComponent<Rigidbody2D>();
+        AddNewBodyPart(transform.position + new Vector3(1f, 0f, 0f)); // TODO: remove hard coded numbers
+    }
+
+
+    // Performs actions based on a vector of numbers
     // @param vectorAction - the list of actions for the agent to perform
     public override void AgentAction(float[] vectorAction)
     {
         int action = Mathf.FloorToInt(vectorAction[0]);
-
-        Debug.Log("Action : " + action);
 
         switch(action)
         {
@@ -74,18 +73,22 @@ public class SnakeAgent : Agent
 
             case k_Left:
                 xDir = -1;
+                yDir = 0;
                 break;
 
             case k_Right:
                 xDir = 1;
+                yDir = 0;
                 break;
 
             case k_Up:
                 yDir = 1;
+                xDir = 0;
                 break;
 
             case k_Down:
                 yDir = -1;
+                xDir = 0;
                 break;
             default:
                 throw new ArgumentException("Invalid action value");
@@ -96,22 +99,18 @@ public class SnakeAgent : Agent
     {
         if (Input.GetKey(KeyCode.D))
         {
-            x = 1;
             return new float[] { k_Right };
         }
         if (Input.GetKey(KeyCode.W))
         {
-            y = 1;
             return new float[] { k_Up };
         }
         if (Input.GetKey(KeyCode.A))
         {
-            x = -1;
             return new float[] { k_Left };
         }
         if (Input.GetKey(KeyCode.S))
         {
-            y = -1;
             return new float[] { k_Down };
         }
         return new float[] { k_NoAction };
@@ -135,10 +134,18 @@ public class SnakeAgent : Agent
     // Resets the AI snake to its default starting position and status
     public override void AgentReset()
     {
+        foreach (GameObject body in bodies)
+        {
+            Destroy(body);
+        }
         bodies.Clear();
         transform.position = startingPos;
         xDir = -1;
         yDir = 0;
+
+        GameManager.instance.ResetScores();
+
+        this.Start();
     }
 
     private void FixedUpdate()
@@ -264,11 +271,6 @@ public class SnakeAgent : Agent
             // Update the game manager score
             GameManager.instance.IncrementAIScore();
 
-            if (GameManager.instance.GetPlayerScore() % 100 == 0)
-            {
-                IncreaseMovementSpeed();
-            }
-
             hasEaten = true;
 
             Destroy(other.gameObject);
@@ -293,7 +295,6 @@ public class SnakeAgent : Agent
 
     public void IncreaseMovementSpeed()
     {
-        GameManager.instance.IncreaseMovementSpeed();
         CancelInvoke("MoveSnake");
         InvokeRepeating("MoveSnake", GameManager.instance.turnTime, GameManager.instance.turnTime);
     }

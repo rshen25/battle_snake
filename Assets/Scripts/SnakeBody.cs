@@ -8,18 +8,6 @@ public class SnakeBody : MovingObject
     public int prevX;
     public int prevY;
 
-    // Start is called before the first frame update
-    protected override void Start()
-    {
-        base.Start();
-    }
-
-    // Update is called once per frame
-    protected void Update()
-    {
-        
-    }
-
     protected override bool Move(int xDir, int yDir, out RaycastHit2D hit)
     {
         Vector2 start = transform.position;
@@ -31,7 +19,6 @@ public class SnakeBody : MovingObject
 
         StartCoroutine(SmoothMovement(end));
         return true;
-
     }
 
     // Moves the body
@@ -46,5 +33,4 @@ public class SnakeBody : MovingObject
         this.xDir = xDir;
         this.yDir = yDir;
     }
-
 }

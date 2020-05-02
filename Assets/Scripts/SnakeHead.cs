@@ -95,11 +95,6 @@ public class SnakeHead : MovingObject
             // Update the game manager score
             GameManager.instance.IncrementPlayerScore();
 
-            if (GameManager.instance.GetPlayerScore() % 100 == 0)
-            {
-                IncreaseMovementSpeed();
-            }
-
             hasEaten = true;
 
             Destroy(other.gameObject);
@@ -120,9 +115,8 @@ public class SnakeHead : MovingObject
         bodies.Push(body);
     }
 
-    private void IncreaseMovementSpeed()
+    public void IncreaseMovementSpeed()
     {
-        GameManager.instance.IncreaseMovementSpeed();
         CancelInvoke("MoveSnake");
         InvokeRepeating("MoveSnake", GameManager.instance.turnTime, GameManager.instance.turnTime);
     }

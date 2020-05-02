@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6743052370069877549}
   - component: {fileID: 7385528299769296730}
   - component: {fileID: -7755170626813737023}
+  - component: {fileID: 1952517452669464599}
   m_Layer: 8
   m_Name: SnakeHead2
   m_TagString: Snake Head
@@ -105,7 +106,7 @@ MonoBehaviour:
     vectorActionSpaceType: 0
   m_Model: {fileID: 0}
   m_InferenceDevice: 0
-  m_BehaviorType: 1
+  m_BehaviorType: 0
   m_BehaviorName: Snake
   m_TeamID: 0
   m_UseChildSensors: 1
@@ -124,7 +125,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  maxStep: 10000
+  maxStep: 100000
   xDir: -1
   yDir: 0
   moveTime: 0.1
@@ -180,3 +181,31 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &1952517452669464599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4802210386678655635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f67c7e722ba14acd9153bb4488bff6e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sensorName: RayPerceptionSensor
+  detectableTags:
+  - Snake Head
+  - SnakeBody
+  - Wall
+  raysPerDirection: 3
+  maxRayDegrees: 90
+  sphereCastRadius: 0.5
+  rayLength: 15
+  rayLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
+  observationStacks: 1
+  rayHitColor: {r: 1, g: 0, b: 0, a: 1}
+  rayMissColor: {r: 1, g: 1, b: 1, a: 1}
+  useWorldPositions: 1
