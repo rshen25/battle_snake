@@ -17,7 +17,7 @@ public class SnakeBody : MovingObject
         hit = Physics2D.Linecast(start, end, blockingLayer);
         boxCollider.enabled = true;
 
-        StartCoroutine(SmoothMovement(end));
+        //StartCoroutine(SmoothMovement(end));
         return true;
     }
 

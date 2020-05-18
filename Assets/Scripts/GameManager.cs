@@ -140,7 +140,7 @@ public class GameManager : MonoBehaviour
         turnTime = turnTime * turnTimeIncrement;
 
         // playerSnake.IncreaseMovementSpeed();
-        aiSnake.IncreaseMovementSpeed();
+        aiSnake.IncreaseMovementSpeed(turnTime);
     }
 
     // Resets the scores

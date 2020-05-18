@@ -29,7 +29,7 @@ public class BoardManager : MonoBehaviour
         {
             for (int y = 1; y < rows - 1; y++)
             {
-                gridPositions.Add(new Vector3(x, y, 0f));
+                gridPositions.Add(transform.position + new Vector3(x, y, 0f));
             }
         }
     }
@@ -37,7 +37,6 @@ public class BoardManager : MonoBehaviour
     // Sets up the floor and wall tiles of the game board
     private void BoardSetup()
     {
-        boardHolder = new GameObject("Board").transform;
 
         // Create the board
         for (int x = -1; x < columns + 1; x++)
@@ -51,9 +50,7 @@ public class BoardManager : MonoBehaviour
                     toInstantiate = wallTiles[Random.Range(0, wallTiles.Length)];
                 }
 
-                GameObject instance = Instantiate(toInstantiate, new Vector3(x, y, 0f), Quaternion.identity) as GameObject;
-
-                instance.transform.SetParent(boardHolder);
+                GameObject instance = Instantiate(toInstantiate, transform.position + new Vector3(x, y, 0f), Quaternion.identity) as GameObject;
             }
         }
     }
@@ -89,7 +86,7 @@ public class BoardManager : MonoBehaviour
         BoardSetup();
 
         // Place food at the center of the game board
-        currentFoodTile = Instantiate(foodTile, new Vector3((int)(columns / 2), (int)(rows / 2), 0f), Quaternion.identity);
+        currentFoodTile = Instantiate(foodTile, transform.position + new Vector3((int)(columns / 2), (int)(rows / 2), 0f), Quaternion.identity);
     }
 
     // Returns the position of the current food

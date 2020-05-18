@@ -21,44 +21,51 @@ public class SnakeAgent : Agent
 
     protected bool isMoving = false;
 
+    private Arena arena;
+
     private int score = 0;
+
+    private Vector3 foodPos;
 
     private float inverseMoveTime;
 
-    private Stack<GameObject> bodies;
+    private List<GameObject> bodies;
 
     private Vector3 startingPos;
 
-    private readonly float initialMoveSpeed = 0.35f;
+    private readonly float moveSpeed = 0.35f;
 
     // Actions
     const int k_NoAction = 0;  // do nothing!
     const int k_Left = 1;
     const int k_Right = 2;
-    const int k_Up = 3;
-    const int k_Down = 4;
 
     // Initial setup of the snake agent, called when the agent is enabled
     public override void InitializeAgent()
     {
         base.InitializeAgent();
 
-        bodies = new Stack<GameObject>();
+        bodies = new List<GameObject>();
 
-        InvokeRepeating("MoveSnake", 1f, initialMoveSpeed);
-    }
+        arena = GetComponentInParent<Arena>();
 
-    private void Start()
-    {
-        startingPos = new Vector3(10, 11, 0);   // TODO: remove hard coded numbers
+        startingPos = transform.position + new Vector3(11f, 12f, 0f);   // TODO: remove hard coded numbers
 
         inverseMoveTime = 1f / moveTime;
 
-        boxCollider = GetComponent<BoxCollider2D>();
-        rigidbody = GetComponent<Rigidbody2D>();
-        AddNewBodyPart(transform.position + new Vector3(1f, 0f, 0f)); // TODO: remove hard coded numbers
+        InvokeRepeating("MoveSnake", 1f, moveSpeed);
     }
 
+    public void Start()
+    {
+        SetFoodPos(arena.GetCurrentFoodPos());
+
+        boxCollider = gameObject.GetComponent<BoxCollider2D>();
+        rigidbody = gameObject.GetComponent<Rigidbody2D>();
+
+        AddNewBodyPart(transform.position + new Vector3(1f, 0f, 0f)); // TODO: remove hard coded numbers
+        //foodPos = GameManager.instance.GetCurrentFoodPos(); TODO: switch back to game manager
+    }
 
     // Performs actions based on a vector of numbers
     // @param vectorAction - the list of actions for the agent to perform
@@ -72,24 +79,13 @@ public class SnakeAgent : Agent
                 break;
 
             case k_Left:
-                xDir = -1;
-                yDir = 0;
+                MoveLeft();
                 break;
 
             case k_Right:
-                xDir = 1;
-                yDir = 0;
+                MoveRight();
                 break;
 
-            case k_Up:
-                yDir = 1;
-                xDir = 0;
-                break;
-
-            case k_Down:
-                yDir = -1;
-                xDir = 0;
-                break;
             default:
                 throw new ArgumentException("Invalid action value");
         }
@@ -101,17 +97,9 @@ public class SnakeAgent : Agent
         {
             return new float[] { k_Right };
         }
-        if (Input.GetKey(KeyCode.W))
-        {
-            return new float[] { k_Up };
-        }
         if (Input.GetKey(KeyCode.A))
         {
             return new float[] { k_Left };
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            return new float[] { k_Down };
         }
         return new float[] { k_NoAction };
     }
@@ -119,8 +107,6 @@ public class SnakeAgent : Agent
     // Collect all non-raycast observations
     public override void CollectObservations()
     { 
-        Vector3 foodPos = GameManager.instance.GetCurrentFoodPos();
-
         // The distance from the food in the X plane
         AddVectorObs(transform.position.x - foodPos.x);
 
@@ -129,6 +115,10 @@ public class SnakeAgent : Agent
 
         // The current score of the AI
         AddVectorObs(score);
+
+        // The direction of the AI
+        AddVectorObs(xDir);
+        AddVectorObs(yDir);
     }
 
     // Resets the AI snake to its default starting position and status
@@ -139,25 +129,14 @@ public class SnakeAgent : Agent
             Destroy(body);
         }
         bodies.Clear();
+
         transform.position = startingPos;
+
         xDir = -1;
         yDir = 0;
 
-        GameManager.instance.ResetScores();
-
-        this.Start();
-    }
-
-    private void FixedUpdate()
-    {
-        if (GetStepCount() % 5 == 0)
-        {
-            RequestDecision();
-        }
-        else
-        {
-            RequestAction();
-        }
+        // GameManager.instance.ResetScores();
+        Start();
     }
 
     // Moves the object towards the direction provided and outputs true/false if successful and a raycast of any collisions
@@ -166,20 +145,24 @@ public class SnakeAgent : Agent
         Vector2 start = transform.position;
         Vector2 end = start + new Vector2(xDir, yDir);
 
-        boxCollider.enabled = false;
+        this.boxCollider.enabled = false;
         hit = Physics2D.Linecast(start, end, blockingLayer);
-        boxCollider.enabled = true;
+        this.boxCollider.enabled = true;
 
         if (hit.transform == null && !isMoving)
         {
             StartCoroutine(SmoothMovement(end));
+            // Add reward for moving closer to food and remove reward for moving away
+            float xDisToFood = Math.Abs(foodPos.x - transform.position.x);
+            float yDisToFood = Math.Abs(foodPos.y - transform.position.y);
+            AddReward(0.01f - (0.001f * (xDisToFood + yDisToFood)));
             return true;
         }
 
         // TODO: REMOVE
-        Debug.Log("Something collided");
+        Debug.Log("Collided into: " + hit.collider.name);
 
-        AddReward(-1000f);
+        AddReward(-10f);
         Done();
 
         return false;
@@ -191,14 +174,6 @@ public class SnakeAgent : Agent
     {
         isMoving = true;
         float sqrRemainingDistance = (transform.position - end).sqrMagnitude;
-
-        Vector3 foodPos = GameManager.instance.GetCurrentFoodPos();
-
-        // Add reward for moving closer to food and remove reward for moving away
-        float xDisToFood = Math.Abs(transform.position.x - foodPos.x);
-        float yDisToFood = Math.Abs(transform.position.y - foodPos.y);
-
-        AddReward(0.01f - 0.001f * (xDisToFood + yDisToFood));
 
         while (sqrRemainingDistance > float.Epsilon)
         {
@@ -218,15 +193,18 @@ public class SnakeAgent : Agent
     // Moves the snake (head and body included) in the current direction
     protected void MoveSnake()
     {
-        // Dont move until the game board is done setting up
-        if (GameManager.instance.doingSetup)
-        {
-            return;
-        }
+        //// Dont move until the game board is done setting up
+        //if (GameManager.instance.doingSetup)
+        //{
+        //    return;
+        //}
 
+        RequestDecision();
+
+        Vector2 pos = transform.position;
         // Move Head
         RaycastHit2D hit;
-        Move(xDir, yDir, out hit);
+        if (!Move(xDir, yDir, out hit)) return;
 
         // If no body to instantiate
         if (!hasEaten)
@@ -238,16 +216,30 @@ public class SnakeAgent : Agent
             // Move Body
             if (bodies.Count > 0)
             {
-                int x = xDir;
-                int y = yDir;
+                //int x = xDir;
+                //int y = yDir;
                 SnakeBody body;
-                foreach (GameObject obj in bodies)
-                {
-                    body = obj.GetComponent<SnakeBody>();
-                    body.MoveBody(x, y);
-                    x = body.prevX;
-                    y = body.prevY;
-                }
+
+                // Get the tail
+                GameObject snakeBodyObj = bodies[bodies.Count - 1];
+                body = snakeBodyObj.GetComponent<SnakeBody>();
+
+                // Remove the tail from the list
+                bodies.RemoveAt(bodies.Count - 1);
+
+                // Move tail
+                snakeBodyObj.transform.position = pos;
+
+                // Insert the tail to the front of the bodies list
+                bodies.Insert(0, snakeBodyObj);
+
+                //foreach (GameObject obj in bodies)
+                //{
+                //    body = obj.GetComponent<SnakeBody>();
+                //    body.MoveBody(x, y);
+                //    x = body.prevX;
+                //    y = body.prevY;
+                //}
             }
         }
 
@@ -257,6 +249,7 @@ public class SnakeAgent : Agent
             this.boxCollider.enabled = false;
             AddNewBodyPart(transform.position);
             hasEaten = false;
+            this.boxCollider.enabled = true;
         }
 
     }
@@ -269,18 +262,26 @@ public class SnakeAgent : Agent
         {
             // Eat the food, increase points
             // Update the game manager score
-            GameManager.instance.IncrementAIScore();
+            // GameManager.instance.IncrementAIScore();
+            if (arena)
+            {
+                arena.IncrementAIScore();
+                Destroy(other.gameObject);
+                // Debug.Log("Destroyed : " + other.tag);
+                arena.RespawnFood();
+                // Debug.Log("Arena is " + arena.name);
+                foodPos = arena.GetCurrentFoodPos();
+            }
 
             hasEaten = true;
-
-            Destroy(other.gameObject);
 
             AddReward(1f);
 
             // Spawn another food
-            GameManager.instance.RespawnFood();
-        }
+            // GameManager.instance.RespawnFood();
 
+            // foodPos = GameManager.instance.GetCurrentFoodPos();
+        }
     }
 
     // Adds a new body part to the snake body
@@ -290,12 +291,83 @@ public class SnakeAgent : Agent
         SnakeBody script = body.GetComponent<SnakeBody>();
         script.xDir = this.xDir;
         script.yDir = this.yDir;
-        bodies.Push(body);
+        bodies.Insert(0, body);
     }
 
-    public void IncreaseMovementSpeed()
+    // Increase the move speed for the snake
+    public void IncreaseMovementSpeed(float turnTime)
     {
         CancelInvoke("MoveSnake");
-        InvokeRepeating("MoveSnake", GameManager.instance.turnTime, GameManager.instance.turnTime);
+        InvokeRepeating("MoveSnake", turnTime, turnTime);
+    }
+
+    // Sets the current position of the food
+    public void SetFoodPos(Vector3 pos)
+    {
+        foodPos = pos;
+    }
+
+    // Sets the arena the snake agent belongs to
+    public void SetArena(Arena arena)
+    {
+        this.arena = arena;
+    }
+
+    // Set the snake to move right relative to the direction it is facing
+    private void MoveRight()
+    {
+        if (xDir == 1)
+        {
+            xDir = 0;
+            yDir = -1;
+            return;
+        }
+        if (xDir == -1)
+        {
+            xDir = 0;
+            yDir = 1;
+            return;
+        }
+        if (yDir == 1)
+        {
+            xDir = 1;
+            yDir = 0;
+            return;
+        }
+        if (yDir == -1)
+        {
+            xDir = -1;
+            yDir = 0;
+            return;
+        }
+    }
+
+    // Set the snake to move left relative to the direction it is facing
+    private void MoveLeft()
+    {
+        if (xDir == 1)
+        {
+            xDir = 0;
+            yDir = 1;
+            return;
+        }
+        if (xDir == -1)
+        {
+            xDir = 0;
+            yDir = -1;
+            return;
+        }
+        if (yDir == 1)
+        {
+            xDir = -1;
+            yDir = 0;
+            return;
+        }
+        if (yDir == -1)
+        {
+            xDir = 1;
+            yDir = 0;
+            return;
+        }
     }
 }

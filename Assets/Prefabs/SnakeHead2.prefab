@@ -99,9 +99,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    vectorObservationSize: 3
+    vectorObservationSize: 5
     numStackedVectorObservations: 1
-    vectorActionSize: 05000000
+    vectorActionSize: 03000000
     vectorActionDescriptions: []
     vectorActionSpaceType: 0
   m_Model: {fileID: 0}
@@ -125,7 +125,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  maxStep: 100000
+  maxStep: 0
   xDir: -1
   yDir: 0
   moveTime: 0.1
@@ -195,12 +195,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sensorName: RayPerceptionSensor
   detectableTags:
-  - Snake Head
-  - SnakeBody
   - Wall
-  raysPerDirection: 3
-  maxRayDegrees: 90
-  sphereCastRadius: 0.5
+  - SnakeBody
+  raysPerDirection: 2
+  maxRayDegrees: 60
+  sphereCastRadius: 0.4
   rayLength: 15
   rayLayerMask:
     serializedVersion: 2

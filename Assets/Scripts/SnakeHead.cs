@@ -6,7 +6,7 @@ public class SnakeHead : MovingObject
 {
     public GameObject bodyPrefab;
     
-    private Stack<GameObject> bodies;
+    private List<GameObject> bodies;
 
     // Use buffer to constantly update the direction, then on MoveSnake, check the buffer and do the direction checking
     protected int xDirBuffer = 1;
@@ -18,7 +18,7 @@ public class SnakeHead : MovingObject
     protected override void Start()
     {
         //body = bodyPrefab.GetComponent<SnakeBody>();
-        bodies = new Stack<GameObject>();
+        bodies = new List<GameObject>();
         base.Start();
 
         InvokeRepeating("MoveSnake", 1f, GameManager.instance.turnTime);
@@ -38,6 +38,7 @@ public class SnakeHead : MovingObject
         {
             return;
         }
+        Vector2 pos = transform.position;
 
         // Update Direction
         UpdateDirection();
@@ -57,14 +58,27 @@ public class SnakeHead : MovingObject
             {
                 int x = xDir;
                 int y = yDir;
-                SnakeBody body;
-                foreach (GameObject obj in bodies)
-                {
-                    body = obj.GetComponent<SnakeBody>();
-                    body.MoveBody(x, y);
-                    x = body.prevX;
-                    y = body.prevY;
-                }
+
+                // Get the tail
+                GameObject snakeBodyObj = bodies[bodies.Count - 1];
+                SnakeBody body = snakeBodyObj.GetComponent<SnakeBody>();
+
+                // Remove the tail from the list
+                bodies.RemoveAt(bodies.Count - 1);
+
+                // Move tail
+                snakeBodyObj.transform.position = pos;
+
+                // Insert the tail to the front of the bodies list
+                bodies.Insert(0, snakeBodyObj);
+
+                //foreach (GameObject obj in bodies)
+                //{
+                //    body = obj.GetComponent<SnakeBody>();
+                //    body.MoveBody(x, y);
+                //    x = body.prevX;
+                //    y = body.prevY;
+                //}
             }
         }
 
@@ -72,7 +86,7 @@ public class SnakeHead : MovingObject
         else
         {
             this.boxCollider.enabled = false;
-            AddNewBodyPart(transform.position);
+            AddNewBodyPart(pos);
             hasEaten = false;
         }
 
@@ -112,7 +126,7 @@ public class SnakeHead : MovingObject
         SnakeBody script = body.GetComponent<SnakeBody>();
         script.xDir = this.xDir;
         script.yDir = this.yDir;
-        bodies.Push(body);
+        bodies.Insert(0, body);
     }
 
     public void IncreaseMovementSpeed()

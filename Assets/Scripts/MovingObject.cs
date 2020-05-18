@@ -40,7 +40,8 @@ public class MovingObject : MonoBehaviour
 
         if (hit.transform == null && !isMoving)
         {
-            StartCoroutine(SmoothMovement(end));
+            //StartCoroutine(SmoothMovement(end));
+            transform.position = end;
             return true;
         }
 
@@ -50,23 +51,23 @@ public class MovingObject : MonoBehaviour
 
     // Used to move units from one space to the next
     // param: end - specifies the ending position where the unit should move to
-    protected IEnumerator SmoothMovement (Vector3 end)
-    {
-        isMoving = true;
-        float sqrRemainingDistance = (transform.position - end).sqrMagnitude;
+    //protected IEnumerator SmoothMovement (Vector3 end)
+    //{
+    //    isMoving = true;
+    //    float sqrRemainingDistance = (transform.position - end).sqrMagnitude;
 
-        while (sqrRemainingDistance > float.Epsilon)
-        {
-            Vector3 newPosition = Vector3.MoveTowards(rigidbody.position, end, inverseMoveTime * Time.deltaTime);
+    //    while (sqrRemainingDistance > float.Epsilon)
+    //    {
+    //        Vector3 newPosition = Vector3.MoveTowards(rigidbody.position, end, inverseMoveTime * Time.deltaTime);
 
-            rigidbody.MovePosition(end);
+    //        rigidbody.MovePosition(end);
 
-            sqrRemainingDistance = (transform.position - end).sqrMagnitude;
+    //        sqrRemainingDistance = (transform.position - end).sqrMagnitude;
 
-            yield return null;
-        }
+    //        yield return null;
+    //    }
 
-        //The object is no longer moving.
-        isMoving = false;
-    }
+    //    //The object is no longer moving.
+    //    isMoving = false;
+    //}
 }
