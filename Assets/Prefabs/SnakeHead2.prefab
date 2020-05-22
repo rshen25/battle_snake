@@ -99,7 +99,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    vectorObservationSize: 5
+    vectorObservationSize: 13
     numStackedVectorObservations: 1
     vectorActionSize: 03000000
     vectorActionDescriptions: []
@@ -126,9 +126,7 @@ MonoBehaviour:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
   maxStep: 0
-  xDir: -1
-  yDir: 0
-  moveTime: 0.1
+  dir: {x: -1, y: 0}
   blockingLayer:
     serializedVersion: 2
     m_Bits: 256
@@ -199,12 +197,12 @@ MonoBehaviour:
   - SnakeBody
   raysPerDirection: 2
   maxRayDegrees: 60
-  sphereCastRadius: 0.4
+  sphereCastRadius: 0.3
   rayLength: 15
   rayLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  observationStacks: 1
+  observationStacks: 2
   rayHitColor: {r: 1, g: 0, b: 0, a: 1}
   rayMissColor: {r: 1, g: 1, b: 1, a: 1}
   useWorldPositions: 1
