@@ -41,11 +41,11 @@ public class MovingObject : MonoBehaviour
         if (hit.transform == null && !isMoving)
         {
             //StartCoroutine(SmoothMovement(end));
-            transform.position = end;
+            rigidbody.position = end;
+            // transform.position = end;
             return true;
         }
 
-        Debug.Log("Something collided");
         return false;
     }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using TMPro;
 
 public class Arena : MonoBehaviour
 {
@@ -28,6 +29,8 @@ public class Arena : MonoBehaviour
     public float turnTimeIncrement = 0.75f;
 
     public SnakeAgent snakeAgent;               // The snake agent in the arena
+
+    public Text agentScore;
 
     private int aiScore = 0;                    // The AI's score
 
@@ -183,5 +186,10 @@ public class Arena : MonoBehaviour
         // if (results) Debug.Log(results.tag);
 
         return results == null;
+    }
+
+    private void Update()
+    {
+        agentScore.text = snakeAgent.GetCumulativeReward().ToString("0.000");
     }
 }
