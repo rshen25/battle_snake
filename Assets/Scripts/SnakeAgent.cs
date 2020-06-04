@@ -8,6 +8,8 @@ public class SnakeAgent : Agent
 {
     public Vector2 dir = Vector2.left;
 
+    public bool isMaskSet = true;
+
     public LayerMask blockingLayer;             // Layer where we check for collisions
 
     public GameObject bodyPrefab;
@@ -31,14 +33,17 @@ public class SnakeAgent : Agent
 
     private readonly float moveSpeed = 0.35f;
 
-    private float prevDistance = 25f;
+    private float prevDistance;
+    private float rotation;
+
+    private Vector2 bufferDir = Vector2.left;
 
     // Actions
-    const int k_NoAction = 0;  // do nothing!
-    const int k_Left = 1;
-    const int k_Right = 2;
-    const int k_Up = 3;
-    const int k_Down = 4;
+    // const int k_NoAction = 0;  // do nothing!
+    const int k_Left = 0;
+    const int k_Right = 1;
+    const int k_Up = 2;
+    const int k_Down = 3;
 
     // Initial setup of the snake agent, called when the agent is enabled
     public override void InitializeAgent()
@@ -49,7 +54,7 @@ public class SnakeAgent : Agent
 
         arena = GetComponentInParent<Arena>();
 
-        startingPos = transform.position + new Vector3(11f, 12f, 0f);   // TODO: remove hard coded numbers
+        startingPos = transform.position + new Vector3(arena.columns - 2, arena.rows - 1, 0f);   // TODO: remove hard coded numbers
 
         InvokeRepeating("MoveSnake", 1f, moveSpeed);
     }
@@ -62,9 +67,80 @@ public class SnakeAgent : Agent
 
         SetFoodPos(arena.GetCurrentFoodPos());
 
+        prevDistance = Vector2.Distance(transform.position, foodPos);
+
         AddNewBodyPart(transform.position + new Vector3(1f, 0f, 0f)); // TODO: remove hard coded numbers
         //foodPos = GameManager.instance.GetCurrentFoodPos(); TODO: switch back to game manager
     }
+
+    // Mask the actions of the AI snake to prevent it from hitting the wall when at the edges of the game board
+    void SetMask()
+    {
+        int posX = (int)transform.localPosition.x;
+        int posY = (int)transform.localPosition.y;
+
+        int maxPos = (int)arena.columns - 1;
+
+        // If the AI snake is at the left edge of the board
+        if (posX == 1)
+        {
+            SetActionMask(k_Left);
+            //if (dir == Vector2.left)
+            //{
+            //    // SetActionMask(0, new int[3] { k_Left, k_Right, k_NoAction });
+            //    SetActionMask(0, new int[] { k_Left, k_Right });
+            //}
+            //if (dir == Vector2.up || dir == Vector2.down)
+            //{
+            //    SetActionMask(0, new int[1] { k_Left });
+            //}
+        }
+
+        // If the AI snake is at the right edge of the board
+        if (posX == maxPos)
+        {
+            SetActionMask(k_Right);
+            //if (dir == Vector2.right)
+            //{
+            //    // SetActionMask(0, new int[3] { k_Left, k_Right, k_NoAction });
+            //    SetActionMask(0, new int[2] { k_Left, k_Right });
+            //}
+            //if (dir == Vector2.up || dir == Vector2.down)
+            //{
+            //    SetActionMask(0, new int[3] { k_Right, k_Down, k_Up });
+            //}
+        }
+
+        // If the AI snake is at the bottom edge of the board
+        if (posY == 0)
+        {
+            SetActionMask(k_Down);
+            //if (dir == Vector2.down)
+            //{
+            //    // SetActionMask(0, new int[3] { k_Down, k_Up, k_NoAction });
+            //    SetActionMask(0, new int[2] { k_Down, k_Up });
+            //}
+            //if (dir == Vector2.left || dir == Vector2.right)
+            //{
+            //    SetActionMask(0, new int[3] { k_Right, k_Left, k_Down });
+            //}
+        }
+
+        // If the AI snake is at the top edge of the board
+        if (posY == maxPos)
+        {
+            SetActionMask(k_Up);
+            //if (dir == Vector2.up)
+            //{
+            //    // SetActionMask(0, new int[3] { k_NoAction, k_Down, k_Up });
+            //    SetActionMask(0, new int[2] { k_Down, k_Up });
+            //}
+            //if (dir == Vector2.left || dir == Vector2.right)
+            //{
+            //    SetActionMask(0, new int[3] { k_Right, k_Up, k_Left });
+            //}
+        }
+    } 
 
     // Performs actions based on a vector of numbers
     // @param vectorAction - the list of actions for the agent to perform
@@ -74,8 +150,8 @@ public class SnakeAgent : Agent
 
         switch(action)
         {
-            case k_NoAction:
-                break;
+            //case k_NoAction:
+            //    break;
 
             case k_Left:
                 MoveLeft();
@@ -84,9 +160,11 @@ public class SnakeAgent : Agent
             case k_Right:
                 MoveRight();
                 break;
+
             case k_Up:
                 MoveUp();
                 break;
+
             case k_Down:
                 MoveDown();
                 break;
@@ -114,30 +192,32 @@ public class SnakeAgent : Agent
         {
             return new float[] { k_Up };
         }
-        return new float[] { k_NoAction };
+        return new float[] { -1f };
+        //return new float[] { k_NoAction };
     }
 
     // Collect all non-raycast observations
     public override void CollectObservations()
     {
-        // The distance from the food in the X plane
+        // The direction to the food
         AddVectorObs((transform.position - foodPos).normalized);
-        //AddVectorObs(transform.position.x - foodPos.x);
-
-        // The distance from the food in the Y plane
-        //AddVectorObs(transform.position.y - foodPos.y);
-
-        // The current score of the AI
-        //AddVectorObs(score);
 
         // The direction of the AI
         AddVectorObs(dir);
 
         AddVectorObs(Vector2.Distance(transform.position, foodPos));
 
+        // The previous distance to the food in the last step
+        AddVectorObs(prevDistance);
+
         Quaternion rotation = transform.rotation;
         Vector2 normalized = (rotation.eulerAngles / 180.0f) - Vector3.one;
         AddVectorObs(normalized);
+
+        if (isMaskSet)
+        {
+            SetMask();
+        }
     }
 
     // Resets the AI snake to its default starting position and status
@@ -171,14 +251,15 @@ public class SnakeAgent : Agent
         
         float currentDistance = Vector3.Distance(foodPos, transform.position);
 
-        if (currentDistance > prevDistance)
+        if (currentDistance <= prevDistance)
         {
-            AddReward(-0.02f);
-        }
-        else
-        {
+            // AddReward(-0.012f);
             AddReward(0.01f);
         }
+        //else
+        //{
+        //    AddReward(0.01f);
+        //}
 
         prevDistance = currentDistance;
     }
@@ -192,6 +273,8 @@ public class SnakeAgent : Agent
         // Move Head
         RaycastHit2D hit;
         if (!Move(dir, out hit)) return;
+
+        // Debug.Log(transform.localPosition.ToString());
 
         // If no body to instantiate
         if (!hasEaten)
@@ -244,22 +327,22 @@ public class SnakeAgent : Agent
         if (!hit && !isMoving)
         {
             rigidbody.position = end;
+            rigidbody.rotation = rotation;
             // Add reward for moving closer to food and remove reward for moving away
 
             AddMovementReward();
 
-            //float xDisToFood = Math.Abs(foodPos.x - transform.position.x);
-            //float yDisToFood = Math.Abs(foodPos.y - transform.position.y);
-            //AddReward(0.01f - (0.00825f * (xDisToFood + yDisToFood)));
             isMoving = false;
             return true;
         }
 
         // TODO: REMOVE
-        Debug.Log("Collided into: " + hit.collider.name);
+        // Debug.Log("Collided into: " + hit.collider.name);
 
         AddReward(-1f);
+
         Done();
+        //AgentReset();
 
         return false;
     }
@@ -277,14 +360,14 @@ public class SnakeAgent : Agent
             {
                 arena.IncrementAIScore();
                 Destroy(other.gameObject);
-                Debug.Log("CurrentPosition: " + transform.position.ToString());
+                // Debug.Log("CurrentPosition: " + transform.position.ToString());
                 arena.RespawnFood();
                 foodPos = arena.GetCurrentFoodPos();
             }
 
             hasEaten = true;
 
-            AddReward(0.1f);
+            AddReward(0.2f);
 
             // Spawn another food
             // GameManager.instance.RespawnFood();
@@ -330,8 +413,9 @@ public class SnakeAgent : Agent
         if (dir == Vector2.left || dir == Vector2.right)
         {
             dir = Vector2.up;
-            transform.rotation = Quaternion.Euler(0f, 0f, 90f);
-            rigidbody.rotation = 90f;
+            //transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+            //rigidbody.rotation = 90f;
+            rotation = 90f;
         }
     }
 
@@ -342,7 +426,8 @@ public class SnakeAgent : Agent
         {
             dir = Vector2.down;
             //transform.rotation = Quaternion.Euler(0f, 0f, 270f);
-            rigidbody.rotation = 270f;
+            //rigidbody.rotation = 270f;
+            rotation = 270f;
         }
     }
 
@@ -353,7 +438,8 @@ public class SnakeAgent : Agent
         {
             dir = Vector2.right;
             //transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-            rigidbody.rotation = 0f;
+            //rigidbody.rotation = 0f;
+            rotation = 0f;
         }
         //if (dir == Vector2.right)
         //{
@@ -388,7 +474,8 @@ public class SnakeAgent : Agent
         {
             dir = Vector2.left;
             //transform.rotation = Quaternion.Euler(0f, 0f, 180f);
-            rigidbody.rotation = 180f;
+            //rigidbody.rotation = 180f;
+            rotation = 180f;
         }
         //if (dir == Vector2.right)
         //{

@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 1, g: 0.12023764, b: 0, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -113,7 +113,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 5, y: 15}
+  m_AnchoredPosition: {x: 11, y: 21}
   m_SizeDelta: {x: 10, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &3731259342493080632
@@ -134,7 +134,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
-  m_SortingLayerID: 0
+  m_SortingLayerID: 416236847
   m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!114 &8160719412721511308
@@ -221,8 +221,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2b265a3cfd68ba48a59f369cc9a9d89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  columns: 13
-  rows: 13
+  columns: 21
+  rows: 21
   floorTiles:
   - {fileID: 5708348015308706789, guid: 8ba9ef56198ad5b48a8a4d1accd99f63, type: 3}
   - {fileID: 2481368953583144125, guid: 38a5b2153b72e784eba608d7590c0fc0, type: 3}

@@ -7,8 +7,8 @@ using TMPro;
 public class Arena : MonoBehaviour
 {
     // Board Manager -------------------
-    public int columns = 13;
-    public int rows = 13;
+    public int columns = 21;
+    public int rows = 21;
 
     public GameObject[] floorTiles;
     public GameObject[] wallTiles;
@@ -168,7 +168,6 @@ public class Arena : MonoBehaviour
         return gridPositions[randomIndex];
     }
 
-
     // Returns the position of the current food
     public Vector3 GetCurrentFoodPos()
     {
@@ -178,12 +177,9 @@ public class Arena : MonoBehaviour
     // Checks if a space is free to spawn a food tile
     private bool CheckIfFreeSpace(Vector3 position)
     {
-
         List<Collider2D> colliders = new List<Collider2D>();
 
         Collider2D results = Physics2D.OverlapCircle(position, 0.45f);
-
-        // if (results) Debug.Log(results.tag);
 
         return results == null;
     }

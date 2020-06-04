@@ -100,11 +100,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_BrainParameters:
     vectorObservationSize: 9
-    numStackedVectorObservations: 1
-    vectorActionSize: 05000000
+    numStackedVectorObservations: 2
+    vectorActionSize: 04000000
     vectorActionDescriptions: []
     vectorActionSpaceType: 0
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: c77ac2bc94fdb9c479f1825c20eff75b, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Snake
@@ -127,6 +127,7 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   maxStep: 0
   dir: {x: -1, y: 0}
+  isMaskSet: 1
   blockingLayer:
     serializedVersion: 2
     m_Bits: 256
