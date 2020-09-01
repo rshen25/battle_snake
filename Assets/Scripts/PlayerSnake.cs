@@ -1,10 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class PlayerSnake : SnakeHead
 {
-
     // Start is called before the first frame update
     protected override void Start()
     {
@@ -36,11 +36,8 @@ public class PlayerSnake : SnakeHead
             // Player loses
             CancelInvoke("MoveSnake");
 
-            Debug.Log("Player lost, collided with " + other.tag);
-
             // Display you lost
-            GameManager.instance.ShowLoseMessage();
+            GameManager.instance.GameOver();
         }
     }
-
 }

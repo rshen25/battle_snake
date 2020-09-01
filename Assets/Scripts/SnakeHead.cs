@@ -4,15 +4,17 @@ using UnityEngine;
 
 public class SnakeHead : MovingObject
 {
-    public GameObject bodyPrefab;
-    
-    private List<GameObject> bodies;
+    public GameObject bodyPrefab;           // The snake's body gameObject
+
+    private List<GameObject> bodies;        // A list to hold the snake's body
+
+    protected Vector2 originalPos;          // The original starting position of the snake
 
     // Use buffer to constantly update the direction, then on MoveSnake, check the buffer and do the direction checking
     protected int xDirBuffer = 1;
     protected int yDirBuffer = 0;
 
-    protected bool hasEaten = false;
+    protected bool hasEaten = false;        // boolean to check if the snake has currently eaten food
 
     // Start is called before the first frame updates
     protected override void Start()
@@ -20,15 +22,13 @@ public class SnakeHead : MovingObject
         //body = bodyPrefab.GetComponent<SnakeBody>();
         bodies = new List<GameObject>();
         base.Start();
-
+        originalPos = transform.position;
         InvokeRepeating("MoveSnake", 1f, GameManager.instance.turnTime);
     }
 
-    // Update is called once per frame
+    // Called every frame
     protected virtual void Update()
-    {
-
-    }
+    {}
 
     // Moves the snake (head and body included) in the current direction
     protected void MoveSnake()
@@ -72,13 +72,6 @@ public class SnakeHead : MovingObject
                 // Insert the tail to the front of the bodies list
                 bodies.Insert(0, snakeBodyObj);
 
-                //foreach (GameObject obj in bodies)
-                //{
-                //    body = obj.GetComponent<SnakeBody>();
-                //    body.MoveBody(x, y);
-                //    x = body.prevX;
-                //    y = body.prevY;
-                //}
             }
         }
 
@@ -89,7 +82,6 @@ public class SnakeHead : MovingObject
             AddNewBodyPart(pos);
             hasEaten = false;
         }
-
     }
 
     // Moves the head of the snake
@@ -116,7 +108,6 @@ public class SnakeHead : MovingObject
             // Spawn another food
             GameManager.instance.RespawnFood();
         }
-
     }
 
     // Adds a new body part to the snake body
@@ -129,12 +120,41 @@ public class SnakeHead : MovingObject
         bodies.Insert(0, body);
     }
 
+    // Increases the movement speed of the snake head
     public void IncreaseMovementSpeed()
     {
         CancelInvoke("MoveSnake");
         InvokeRepeating("MoveSnake", GameManager.instance.turnTime, GameManager.instance.turnTime);
     }
 
+    // Resets the position and movement speed of the snake to its initial state
+    public void ResetSnake()
+    {
+        // Stop movement
+        CancelInvoke("MoveSnake");
+
+        // Destroy the body parts
+        foreach (GameObject body in bodies)
+        {
+            Destroy(body);
+        }
+        bodies.Clear();
+
+        // Reset the snake's position and rotation to its original starting position
+        transform.position = originalPos;
+        transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, 180f));
+
+        // Reset the direction
+        xDir = 1;
+        xDirBuffer = 1;
+        yDir = 0;
+        yDirBuffer = 0;
+
+        Start();
+    }
+
+    // Checks the direction to not allow the snake to move in the opposite direction of its current vector
+    // and sets the current direction of the snake
     private void UpdateDirection()
     {
         if (xDirBuffer * -1 == xDir)
@@ -155,4 +175,5 @@ public class SnakeHead : MovingObject
             yDir = 0;
         }
     }
+
 }

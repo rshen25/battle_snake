@@ -6,37 +6,35 @@ using MLAgents;
 
 public class SnakeAgent : Agent
 {
-    public Vector2 dir = Vector2.left;
+    public Vector2 dir = Vector2.left;          // The direction the snake will be moving
 
-    public bool isMaskSet = true;
+    public bool isMaskSet = true;               // Action mask to make the AI use the discrete actions mask we have defined
 
     public LayerMask blockingLayer;             // Layer where we check for collisions
 
-    public GameObject bodyPrefab;
+    public GameObject bodyPrefab;               // The snake's body gameObject
 
-    protected bool hasEaten = false;
+    protected bool hasEaten = false;            // boolean to check if the snake has currently eaten food
 
     protected BoxCollider2D boxCollider;        // The object's collision box
     protected new Rigidbody2D rigidbody;        // The object's rigid body, used for collision
 
-    protected bool isMoving = false;
+    protected bool isMoving = false;            // If the snake is currently moving
 
-    private Arena arena;
+    private Arena arena;                        // Field to hold the training arena the snake agent belongs to
 
-    private int score = 0;
+    private Vector3 foodPos;                    // The current position of the food tile on the game board
 
-    private Vector3 foodPos;
+    private List<GameObject> bodies;            // A list to hold the snake's body
 
-    private List<GameObject> bodies;
+    private Vector3 startingPos;                // The original starting position of the snake
 
-    private Vector3 startingPos;
+    private readonly float moveSpeed = 0.35f;   // The snakes movement speed, it moves at every interval specified here
 
-    private readonly float moveSpeed = 0.35f;
+    private float prevDistance;                 // The distance between the snake and the food tile in its previous movement step, used for AI decision making
+    private float rotation;                     // The current rotation of the snake's head, used for AI decision making
 
-    private float prevDistance;
-    private float rotation;
-
-    private Vector2 bufferDir = Vector2.left;
+    private Vector2 bufferDir = Vector2.left;   // The direction the snake is intended to move to
 
     // Actions
     // const int k_NoAction = 0;  // do nothing!
@@ -54,23 +52,27 @@ public class SnakeAgent : Agent
 
         arena = GetComponentInParent<Arena>();
 
-        startingPos = transform.position + new Vector3(arena.columns - 2, arena.rows - 1, 0f);   // TODO: remove hard coded numbers
+        startingPos = transform.position + new Vector3(arena.columns - 2, arena.rows - 1, 0f);
 
         InvokeRepeating("MoveSnake", 1f, moveSpeed);
     }
 
+    // Called before the first frame of the game
     public void Start()
     {
+        // Set up the collision box associated with the snake head
         boxCollider = gameObject.GetComponent<BoxCollider2D>();
         rigidbody = gameObject.GetComponent<Rigidbody2D>();
         rigidbody.rotation = 180f;
 
+        // Get the current position of the food tile
         SetFoodPos(arena.GetCurrentFoodPos());
 
+        // Calculate the distance of the food from the snake
         prevDistance = Vector2.Distance(transform.position, foodPos);
 
-        AddNewBodyPart(transform.position + new Vector3(1f, 0f, 0f)); // TODO: remove hard coded numbers
-        //foodPos = GameManager.instance.GetCurrentFoodPos(); TODO: switch back to game manager
+        // Add the initial snake body part
+        AddNewBodyPart(transform.position + new Vector3(1f, 0f, 0f));
     }
 
     // Mask the actions of the AI snake to prevent it from hitting the wall when at the edges of the game board
@@ -85,60 +87,24 @@ public class SnakeAgent : Agent
         if (posX == 1)
         {
             SetActionMask(k_Left);
-            //if (dir == Vector2.left)
-            //{
-            //    // SetActionMask(0, new int[3] { k_Left, k_Right, k_NoAction });
-            //    SetActionMask(0, new int[] { k_Left, k_Right });
-            //}
-            //if (dir == Vector2.up || dir == Vector2.down)
-            //{
-            //    SetActionMask(0, new int[1] { k_Left });
-            //}
         }
 
         // If the AI snake is at the right edge of the board
         if (posX == maxPos)
         {
             SetActionMask(k_Right);
-            //if (dir == Vector2.right)
-            //{
-            //    // SetActionMask(0, new int[3] { k_Left, k_Right, k_NoAction });
-            //    SetActionMask(0, new int[2] { k_Left, k_Right });
-            //}
-            //if (dir == Vector2.up || dir == Vector2.down)
-            //{
-            //    SetActionMask(0, new int[3] { k_Right, k_Down, k_Up });
-            //}
         }
 
         // If the AI snake is at the bottom edge of the board
-        if (posY == 0)
+        if (posY == 1)
         {
             SetActionMask(k_Down);
-            //if (dir == Vector2.down)
-            //{
-            //    // SetActionMask(0, new int[3] { k_Down, k_Up, k_NoAction });
-            //    SetActionMask(0, new int[2] { k_Down, k_Up });
-            //}
-            //if (dir == Vector2.left || dir == Vector2.right)
-            //{
-            //    SetActionMask(0, new int[3] { k_Right, k_Left, k_Down });
-            //}
         }
 
         // If the AI snake is at the top edge of the board
         if (posY == maxPos)
         {
             SetActionMask(k_Up);
-            //if (dir == Vector2.up)
-            //{
-            //    // SetActionMask(0, new int[3] { k_NoAction, k_Down, k_Up });
-            //    SetActionMask(0, new int[2] { k_Down, k_Up });
-            //}
-            //if (dir == Vector2.left || dir == Vector2.right)
-            //{
-            //    SetActionMask(0, new int[3] { k_Right, k_Up, k_Left });
-            //}
         }
     } 
 
@@ -150,9 +116,6 @@ public class SnakeAgent : Agent
 
         switch(action)
         {
-            //case k_NoAction:
-            //    break;
-
             case k_Left:
                 MoveLeft();
                 break;
@@ -174,6 +137,7 @@ public class SnakeAgent : Agent
         }
     }
 
+    // AI movement heuristic, allows for manual movement of the AI when training
     public override float[] Heuristic()
     {
         if (Input.GetKey(KeyCode.D))
@@ -193,7 +157,6 @@ public class SnakeAgent : Agent
             return new float[] { k_Up };
         }
         return new float[] { -1f };
-        //return new float[] { k_NoAction };
     }
 
     // Collect all non-raycast observations
@@ -205,6 +168,7 @@ public class SnakeAgent : Agent
         // The direction of the AI
         AddVectorObs(dir);
 
+        // The current distance between the snake head and the food tile 
         AddVectorObs(Vector2.Distance(transform.position, foodPos));
 
         // The previous distance to the food in the last step
@@ -225,27 +189,31 @@ public class SnakeAgent : Agent
     {
         CancelInvoke("MoveSnake");
 
+        // Destroy every body part
         foreach (GameObject body in bodies)
         {
             Destroy(body);
         }
         bodies.Clear();
 
+        // Reset the agent's position and rotation
         transform.position = startingPos;
         transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, 180f));
 
+        // Reset the direction
         dir = Vector2.left;
+        bufferDir = Vector2.left;
 
+        // Reset the score
         arena.ResetScores();
 
         InvokeRepeating("MoveSnake", 0f, moveSpeed);
 
-        // GameManager.instance.ResetScores();
         Start();
     }
 
 
-    // Rewards the AI for moving closer to the food and reduces reward for moving away
+    // Rewards the AI for moving closer to the food
     private void AddMovementReward()
     {
         
@@ -253,13 +221,8 @@ public class SnakeAgent : Agent
 
         if (currentDistance <= prevDistance)
         {
-            // AddReward(-0.012f);
             AddReward(0.01f);
         }
-        //else
-        //{
-        //    AddReward(0.01f);
-        //}
 
         prevDistance = currentDistance;
     }
@@ -272,9 +235,8 @@ public class SnakeAgent : Agent
 
         // Move Head
         RaycastHit2D hit;
+        dir = bufferDir;
         if (!Move(dir, out hit)) return;
-
-        // Debug.Log(transform.localPosition.ToString());
 
         // If no body to instantiate
         if (!hasEaten)
@@ -328,21 +290,17 @@ public class SnakeAgent : Agent
         {
             rigidbody.position = end;
             rigidbody.rotation = rotation;
-            // Add reward for moving closer to food and remove reward for moving away
 
+            // Add reward for moving closer to food
             AddMovementReward();
 
             isMoving = false;
             return true;
         }
 
-        // TODO: REMOVE
-        // Debug.Log("Collided into: " + hit.collider.name);
-
         AddReward(-1f);
 
         Done();
-        //AgentReset();
 
         return false;
     }
@@ -355,12 +313,10 @@ public class SnakeAgent : Agent
         {
             // Eat the food, increase points
             // Update the game manager score
-            // GameManager.instance.IncrementAIScore();
             if (arena)
             {
                 arena.IncrementAIScore();
                 Destroy(other.gameObject);
-                // Debug.Log("CurrentPosition: " + transform.position.ToString());
                 arena.RespawnFood();
                 foodPos = arena.GetCurrentFoodPos();
             }
@@ -368,16 +324,7 @@ public class SnakeAgent : Agent
             hasEaten = true;
 
             AddReward(0.2f);
-
-            // Spawn another food
-            // GameManager.instance.RespawnFood();
-
-            // foodPos = GameManager.instance.GetCurrentFoodPos();
         }
-
-        // If collided with other snake body
-
-        // If collided with other snake head
     }
 
     // Adds a new body part to the snake body
@@ -412,9 +359,7 @@ public class SnakeAgent : Agent
     {
         if (dir == Vector2.left || dir == Vector2.right)
         {
-            dir = Vector2.up;
-            //transform.rotation = Quaternion.Euler(0f, 0f, 90f);
-            //rigidbody.rotation = 90f;
+            bufferDir = Vector2.up;
             rotation = 90f;
         }
     }
@@ -424,9 +369,7 @@ public class SnakeAgent : Agent
     {
         if (dir == Vector2.left || dir == Vector2.right)
         {
-            dir = Vector2.down;
-            //transform.rotation = Quaternion.Euler(0f, 0f, 270f);
-            //rigidbody.rotation = 270f;
+            bufferDir = Vector2.down;
             rotation = 270f;
         }
     }
@@ -436,35 +379,9 @@ public class SnakeAgent : Agent
     {
         if (dir == Vector2.up || dir == Vector2.down)
         {
-            dir = Vector2.right;
-            //transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-            //rigidbody.rotation = 0f;
+            bufferDir = Vector2.right;
             rotation = 0f;
         }
-        //if (dir == Vector2.right)
-        //{
-        //    dir = Vector2.down;
-        //    transform.Rotate(new Vector3(0f, 0f, -90f));
-        //    return;
-        //}
-        //if (dir == Vector2.left)
-        //{
-        //    dir = Vector2.up;
-        //    transform.Rotate(new Vector3(0f, 0f, -90f));
-        //    return;
-        //}
-        //if (dir == Vector2.up)
-        //{
-        //    dir = Vector2.right;
-        //    transform.Rotate(new Vector3(0f, 0f, -90f));
-        //    return;
-        //}
-        //if (dir == Vector2.down)
-        //{
-        //    dir = Vector2.left;
-        //    transform.Rotate(new Vector3(0f, 0f, -90f));
-        //    return;
-        //}
     }
 
     // Set the snake to move left relative to the direction it is facing
@@ -472,34 +389,8 @@ public class SnakeAgent : Agent
     {
         if (dir == Vector2.up || dir == Vector2.down)
         {
-            dir = Vector2.left;
-            //transform.rotation = Quaternion.Euler(0f, 0f, 180f);
-            //rigidbody.rotation = 180f;
+            bufferDir = Vector2.left;
             rotation = 180f;
         }
-        //if (dir == Vector2.right)
-        //{
-        //    dir = Vector2.up;
-        //    transform.Rotate(new Vector3(0f, 0f, 90f));
-        //    return;
-        //}
-        //if (dir == Vector2.left)
-        //{
-        //    dir = Vector2.down;
-        //    transform.Rotate(new Vector3(0f, 0f, 90f));
-        //    return;
-        //}
-        //if (dir == Vector2.up)
-        //{
-        //    dir = Vector2.left;
-        //    transform.Rotate(new Vector3(0f, 0f, 90f));
-        //    return;
-        //}
-        //if (dir == Vector2.down)
-        //{
-        //    dir = Vector2.right;
-        //    transform.Rotate(new Vector3(0f, 0f, 90f));
-        //    return;
-        //}
     }
 }

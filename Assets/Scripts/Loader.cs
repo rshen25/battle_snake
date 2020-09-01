@@ -15,4 +15,17 @@ public class Loader : MonoBehaviour
             Instantiate(gameManager);
         }
     }
+
+    // Called when the game is over
+    public void GameOver()
+    {
+        GameManager.instance.Reset();
+    }
+
+    // Exits the application
+    public void Exit()
+    {
+        Application.Quit();
+        Debug.Log("Exited");
+    }
 }
