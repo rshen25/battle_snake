@@ -2,7 +2,7 @@
 A simple <a href="https://en.wikipedia.org/wiki/Snake_(video_game_genre)">Snake</a> game played against an AI to see which one gets the higher score, developed using the Unity Engine and written in C#.
 
 # Download/Run game
-You may download the game <a href=""> here </a>. 
+You may download the game <a href="https://github.com/rshen25/battle_snake/raw/master/BattleSnake/BattleSnake.rar"> here </a>. 
 To run, execute the Snake Unity application found in the download.
 
 # About
