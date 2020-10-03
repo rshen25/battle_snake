@@ -1,6 +1,5 @@
 # Battle Snake
 A simple <a href="https://en.wikipedia.org/wiki/Snake_(video_game_genre)">Snake</a> game played against an AI to see which one gets the higher score, developed using the Unity Engine and written in C#.
-*** Screenshot of game***
 
 # Download/Run game
 You may download the game <a href=""> here </a>. 
@@ -63,7 +62,10 @@ movement step, and to not punish it when it moved away or collided with anything
 Negative rewards did not prove very effective in training the AI to achieve its goal. 
 </p>
 Below you can see the training process in action, the first gif is of the training at its initial stages.
-![SnakeTrainingEarly GIF](https://github.com/rshen25/battle_snake/blob/master/res/snake_20m_training_demo.gif)
+
+![SnakeTrainingEarly GIF](https://github.com/rshen25/battle_snake/blob/master/res/snake_early_training_demo.gif)
+
 Here is the training process 25 minutes in.
-![SnakeTrainingLate GIF](https://github.com/rshen25/battle_snake/blob/master/res/snake_early_training_demo.gif)
+
+![SnakeTrainingLate GIF](https://raw.githubusercontent.com/rshen25/battle_snake/master/res/snake_20m_training_demo.gif)
 
