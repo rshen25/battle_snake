@@ -174,6 +174,7 @@ public class SnakeAgent : Agent
         // The previous distance to the food in the last step
         AddVectorObs(prevDistance);
 
+        // The current rotation of the agent's head
         Quaternion rotation = transform.rotation;
         Vector2 normalized = (rotation.eulerAngles / 180.0f) - Vector3.one;
         AddVectorObs(normalized);

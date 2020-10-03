@@ -60,6 +60,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0.12023764, b: 0, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -187,7 +189,7 @@ GameObject:
   - component: {fileID: 3753635099861708803}
   - component: {fileID: 3753635099861708802}
   m_Layer: 0
-  m_Name: Arena
+  m_Name: TrainingArena
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -224,15 +226,11 @@ MonoBehaviour:
   columns: 21
   rows: 21
   floorTiles:
-  - {fileID: 5708348015308706789, guid: 8ba9ef56198ad5b48a8a4d1accd99f63, type: 3}
-  - {fileID: 2481368953583144125, guid: 38a5b2153b72e784eba608d7590c0fc0, type: 3}
-  - {fileID: 170352869254842886, guid: 15e38593fb8970d4aac6773efeb97f8b, type: 3}
-  - {fileID: 2675815346038348409, guid: 440ddaabcb22fab478fe9e4c8c3d0157, type: 3}
+  - {fileID: 1604289582865115478, guid: 82e6427182f49014885c4a253c1e96b5, type: 3}
   wallTiles:
-  - {fileID: 6362437897022095768, guid: fbfee5d3a58271242b6ef08034be022a, type: 3}
+  - {fileID: 7306728505164983951, guid: 1bdda55a4d785ea49982484782aa4d05, type: 3}
   foodTile: {fileID: 5490268986019622409, guid: 5cfbd613effb99e48b04d48e19570255,
     type: 3}
-  levelStartDelay: 4
   doingSetup: 1
   turnTime: 0.35
   stage: 0
